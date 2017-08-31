@@ -1,0 +1,60 @@
+html
+  head
+    link(href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet")
+    meta(name='viewport', content='width=device-width, initial-scale=1')
+    script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js')
+    script(src='clientChat.js')
+    link(rel='stylesheet', type='text/css', href='styleChat.css')
+  body
+    #userListBgrDisable
+      #userListWindow
+    #settingsBgrDisable
+      #settingsWindow
+        | Settings:
+        br
+        form(id="settings")
+          input(type="text" id="ipAddress" placeholder="Ip of WebSocket" value="89.78.164.45:8001")
+          input(type="text" id="nameInput" placeholder="Name" autofocus="true")
+          br
+          input(type="radio" class="red" name="color" value="red")
+          input(type="radio" class="orange" name="color" value="orange")
+          input(type="radio" class="gold" name="color" value="gold")
+          input(type="radio" class="pink" name="color" value="pink")
+          input(type="radio" class="purple" name="color" value="purple")
+          input(type="radio" class="green" name="color" value="green")
+          input(type="radio" class="blue" name="color" value="blue" checked)
+          input(type="radio" class="silver" name="color" value="silver" )
+          input(type="radio" class="black" name="color" value="black")
+          input(type="radio" class="rainbow" name="color" value="rainbow")
+          input(type="button" value="Connect" id="settingsConnect")
+    #results.chatHistory
+      img#logoCenter(src='logo.png')
+      .message
+        .bubble.notYour
+          | Czat v2
+          span.tooltip
+            | by Krzysztof Widacki
+    .actionBar
+      .settingsBar
+        button
+          i(class="material-icons userList")
+            |list
+        button
+          i(class="material-icons connectSettings")
+            |settings
+        button(class="statusOk" style="display: none;")
+          i(class="material-icons")
+            |check_circle
+          span.tooltipStatus
+            |Connected
+        button(class="statusErr")
+          i(class="material-icons")
+            |error
+          span.tooltipStatus
+            |Not Connected
+      .messageBar
+        input#chatInput(type='text', placeholder='Your message')
+        button(class="sendMessage")
+          i(class="material-icons")
+            |send

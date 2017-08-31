@@ -1,0 +1,81 @@
+$(document).ready(function() {
+
+var connection;
+var isConnected = false;
+var connectTimeout;
+var address = "89.78.164.45:8001";
+$("#chatInput").keypress(function(e) { //check for enter press in chat input
+    if(e.which == 13) {
+         connection.send( $('#chatInput').val() );
+         $('#chatInput').val("");
+    }
+});
+function connect(){
+    if(!isConnected){
+        //connection.close();
+        connection = new WebSocket('ws://'+address);
+        console.log("connecting...");
+        
+        connection.onerror = (event) => {
+            if(!isConnected){
+                return;
+            }
+            isConnected = false;
+            $('#connectionState').html("disconnected<br>Error").removeClass( "connected" );
+            console.log("onerror");
+            connection.close();
+            connectTimeout = setTimeout(connect, 2000);
+        }
+        connection.onopen = (event) => {
+            $('#connectionState').html("Connected").addClass( "connected" );
+            console.log("onopen");
+            isConnected = true;
+        }
+        connection.onclose = (event) => {
+            if(!isConnected){
+                return;
+            }
+            isConnected = false;
+            $('#connectionState').html("Disconnected<br>Server Closed").removeClass( "connected" );
+            console.log("onclose");
+            connection.close();
+            connectTimeout = setTimeout(connect, 2000);
+        }
+        connection.onmessage = (event) => {
+            newMessage(event.data);
+            $(".chatHistory").animate({ scrollTop: $(".chatHistory")[0].scrollHeight }, 0);
+        };
+    }
+}
+// var buttonConnect = ()=>{
+//     console.log("manual connect");
+//     connection = new WebSocket('ws://192.168.0.66:8001');
+// }
+var newMessage = (objStr) => {
+    let obj = JSON.parse(objStr);
+    let your = obj.your ? "your" : "notYour";
+    let message = 
+    `<div class="message">
+        <div class="bubble ${your}">
+            ${obj.message}
+            <span class="tooltip">${obj.ip}<br>[${obj.time}]</span>
+        </div>
+    </div>`;
+    $(".chatHistory").append(message);
+}
+
+$("#connectionState").click( ()=>{
+    connect();
+    console.log("Manual Reconnect...");
+} );
+
+(()=>{
+    let promptStr = prompt("Enter address of chat or enter nothing to connect to pi@"+address, "192.168.0.66:8001")
+    if(promptStr && promptStr.trim()) {// check if anything is written in addrees
+        
+        var address2 = promptStr;
+    }
+    connect();
+})();
+
+});
