@@ -170,7 +170,7 @@ var fs = require('fs');
 var app        = express();
 var pug = require('pug');
 
-var port = process.env.PORT || 8008;        // set our port
+var port = process.env.PORT || 8080;        // set our port
 
 
 // ROUTES FOR OUR API
