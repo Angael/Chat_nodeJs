@@ -159,7 +159,12 @@ $(".userList").click(()=>{
         }
         
         connect();
-    })
+    });
+
+    //Set default value for connection to this page url minus http
+    let url = window.location.href;
+    let wsUrlStr = url.substring(url.indexOf("://") + 3);
+    $("#ipAddress").val(wsUrlStr);
 
 })();
 
