@@ -3,31 +3,31 @@ html
     link(href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet")
     meta(name='viewport', content='width=device-width, initial-scale=1')
+    meta(charset="UTF-8")
     script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js')
     script(src='clientChat.js')
     link(rel='stylesheet', type='text/css', href='styleChat.css')
   body
-    #userListBgrDisable
-      #userListWindow
-    #settingsBgrDisable
-      #settingsWindow
-        | Settings:
+    #grayedOutBackground
+    #userListWindow
+    #settingsWindow
+      | Settings:
+      br
+      form(id="settings")
+        input(type="text" id="ipAddress" placeholder="Ip of WebSocket" value="89.78.164.45:8001")
+        input(type="text" id="nameInput" placeholder="Name" autofocus="true")
         br
-        form(id="settings")
-          input(type="text" id="ipAddress" placeholder="Ip of WebSocket" value="89.78.164.45:8001")
-          input(type="text" id="nameInput" placeholder="Name" autofocus="true")
-          br
-          input(type="radio" class="red" name="color" value="red")
-          input(type="radio" class="orange" name="color" value="orange")
-          input(type="radio" class="gold" name="color" value="gold")
-          input(type="radio" class="pink" name="color" value="pink")
-          input(type="radio" class="purple" name="color" value="purple")
-          input(type="radio" class="green" name="color" value="green")
-          input(type="radio" class="blue" name="color" value="blue" checked)
-          input(type="radio" class="silver" name="color" value="silver" )
-          input(type="radio" class="black" name="color" value="black")
-          input(type="radio" class="rainbow" name="color" value="rainbow")
-          input(type="button" value="Connect" id="settingsConnect")
+        input(type="radio" class="red" name="color" value="red")
+        input(type="radio" class="orange" name="color" value="orange")
+        input(type="radio" class="gold" name="color" value="gold")
+        input(type="radio" class="pink" name="color" value="pink")
+        input(type="radio" class="purple" name="color" value="purple")
+        input(type="radio" class="green" name="color" value="green")
+        input(type="radio" class="blue" name="color" value="blue" checked)
+        input(type="radio" class="silver" name="color" value="silver" )
+        input(type="radio" class="black" name="color" value="black")
+        input(type="radio" class="rainbow" name="color" value="rainbow")
+        input(type="button" value="Connect" id="settingsConnect")
     #results.chatHistory
       img#logoCenter(src='logo.png')
       .message

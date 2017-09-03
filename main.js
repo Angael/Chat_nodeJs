@@ -36,10 +36,9 @@ var server = app.listen(port);
 
 //Websocket stuff -->
 var WebSocketServer = require("ws").Server;
-var clientMap = new Array();
-// wss.on('connection', function(ws, req) {
-//   console.log(req.connection.remoteAddress);
-// });
+var clientArr = new Array();
+var msgHistorySize = 100;
+var msgHistory = new Array();
 
 console.log("starting...");
 var wss = new WebSocketServer({ server : server });
@@ -60,9 +59,9 @@ function escapeHtml (string) {
     return entityMap[s];
   });
 }
-function allUsersJSON(_clientMap){ //get JSON string of all users
+function allUsersJSON(_clientArr){ //get JSON string of all users
   let allUsersArr = { userList:[] };
-  _clientMap.forEach((element, index)=>{
+  _clientArr.forEach((element, index)=>{
     let name = (element.hasOwnProperty('name')) ? element.name : "Guest";
     name = (name=="") ? "Guest": name;
     let color = (element.hasOwnProperty('color')) ? element.color : "blue";
@@ -74,13 +73,32 @@ function allUsersJSON(_clientMap){ //get JSON string of all users
   });
   return JSON.stringify(allUsersArr);
 }
+function addMsgHistory(msgObj){
+  if(msgHistory.length < msgHistorySize){
+    //just add at the end
+    msgHistory.push(msgObj);
+  }else{
+    //delete first and push
+    msgHistory.shift();
+    msgHistory.push(msgObj);
+  }
+  console.log("msgHistory.length= " + msgHistory.length);
+}
+function sendMsgHistory(recipient){ //websocket as argument
+  if(msgHistory.length > 0){
+    msgHistory.forEach( (element, index)=>{
+      let msgString = JSON.stringify(element);
+      recipient.send(msgString);
+    });
+  }
+}
 
 wss.on("connection", (ws, req) => {
   let ip = req.connection.remoteAddress;
-  let temp = clientMap.push( {ws:ws, ip:ip} );
-  let client = clientMap[clientMap.length-1];
-  console.log("length "+temp)
-
+  let temp = clientArr.push( {ws:ws, ip:ip} );
+  let client = clientArr[clientArr.length-1];
+  console.log("clientArr.length= "+temp);
+  sendMsgHistory(ws);
   ws.on('message', (message) =>{
     console.log('received: %s', message);
     let msgObj = (JSON.parse(message));
@@ -100,14 +118,15 @@ wss.on("connection", (ws, req) => {
       let time = new Date();
       //send to everybody
       let escMessage = escapeHtml(msgObj.message);
-
+      let timeStr = time.getHours().toString() + ":" + time.getMinutes().toString();
+      let obj = {time:timeStr, ip:ip, message:escMessage, your:false};
+      addMsgHistory(obj);
+      obj.color = (client.hasOwnProperty('color')) ? client.color : "blue";
+      obj.name = (client.hasOwnProperty('name')) ? client.name : "Guest";
+      obj.name = (obj.name=="") ? "Guest": obj.name;
       //send to all
-      clientMap.forEach((element, index)=>{
-          let timeStr = time.getHours().toString() + ":" + time.getMinutes().toString();
-          let obj = {time:timeStr, ip:ip, message:escMessage};
-          obj.color = (client.hasOwnProperty('color')) ? client.color : "blue";
-          obj.name = (client.hasOwnProperty('name')) ? client.name : "Guest";
-          obj.name = (obj.name=="") ? "Guest": obj.name;
+      clientArr.forEach((element, index)=>{
+         
           if(ws==element.ws){
             obj.your = true;
           }else{
@@ -115,11 +134,13 @@ wss.on("connection", (ws, req) => {
           }
 
           let objStr = JSON.stringify(obj);
-          console.log("elem state:" + element.ws.readyState);
+          //console.log("elem state:" + element.ws.readyState);
           if(element.ws.readyState ==1){
             element.ws.send(objStr);
           }
       });
+      obj.your = false; // because probably in msgHistory there is a non-deep clone
+      //that means he still shares stuff with obj
     }
   });
 });
@@ -132,15 +153,15 @@ wss.on("connection", (ws, req) => {
   var timeout = setInterval(function() {
     //done every 4 intervals show client number, 4sec
     if(c%2==0){
-      console.log("Clients: ws:[" + wss.clients.size + "] array:{"+clientMap.length+"}")
+      console.log("Clients: ws:[" + wss.clients.size + "] array:{"+clientArr.length+"}")
     }
     
-    clientMap.forEach((element, index)=>{
+    clientArr.forEach((element, index)=>{
         if(element.ws.readyState ==3){ // if it is closed then delete
-          clientMap.splice(index, 1);
+          clientArr.splice(index, 1);
           console.log("delete socket: " + element.ip);
         }else{
-          element.ws.send(allUsersJSON(clientMap));
+          element.ws.send(allUsersJSON(clientArr));
         }
     });
     

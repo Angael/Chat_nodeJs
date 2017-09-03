@@ -6,8 +6,8 @@ var settings = settings = {
                 name:"Guest",
                 color:"blue"
             };
-var isConnected = false;
 var userList = [];
+var isConnected = false;
 var connectTimeout;
 var address = "89.78.164.45:8001";
 
@@ -91,54 +91,54 @@ var newMessage = (objStr) => {
     let message = 
     `<div class="message">
         <div class="bubble ${obj.color} ${your}">
-            ${obj.message} <br>~ ${obj.name}
+            ${obj.message} 
+            <div class="author">
+                ${obj.name}
+            </div>
             <span class="tooltip">${obj.ip}<br>[${obj.time}]</span>
         </div>
     </div>`;
     $(".chatHistory").append(message);
 }
 
-$("#connectionState").click( ()=>{
+$(".statusErr").click( (event)=>{
     connect();
     console.log("Manual Reconnect...");
 } );
 
-$(window).click(function() {
-    $("#settingsBgrDisable").hide();
-    $("#userListBgrDisable").hide();
+$(window).click(function(event) {
+    if( event.target == $("#grayedOutBackground").get()[0] ){ //convert dom obj to jquery obj
+        $("#grayedOutBackground").hide();
+        $("#userListWindow").hide();
+        $("#settingsWindow").hide();
+    }
 });
-$('#settingsWindow, .connectSettings, #userListWindow, .userList').click(function(event){
-    event.stopPropagation();
-});
-$(".sendMessage").click(()=>{
+$(".sendMessage").click((event)=>{
     sendMessage();
 });
-$(".connectSettings").click(()=>{
-    if($("#settingsBgrDisable").is(":visible")){
-        //if connection settings are visible:
-        $("#settingsBgrDisable").hide();
-    }else{
-        $("#settingsBgrDisable").show();
-    }
+$(".connectSettings").parent().click((event)=>{
+    $("#settingsWindow").show();
+    $("#grayedOutBackground").show();
+    
 });
-$("#userListBgrDisable").hide();
-$(".userList").click(()=>{
-    if($("#settingsBgrDisable").is(":visible")){
-        //if connection settings are visible:
-        $("#userListBgrDisable").hide();
-    }else{
-        $("#userListBgrDisable").show();
-    }
+$("#userListWindow").hide();
+$(".userList").parent().click(()=>{
+    $("#userListWindow").show();
+    $("#grayedOutBackground").show();
     //put all users in there;
     $("#userListWindow").html("");
-    userList.forEach((element, index)=>{
-        let userInfo = `
-        <div class="user ${element.color}">
-            ${element.name}
-        </div>
-        `;
-        $("#userListWindow").append(userInfo);
-    });
+    if(userList.length == 0){
+        $("#userListWindow").html("<h2>Not connected</h2>");
+    }else{
+        userList.forEach( (element, index)=>{
+            let userInfo = `
+            <div class="user ${element.color}">
+                ${element.name}
+            </div>
+            `;
+            $("#userListWindow").append(userInfo);
+        });
+    }
 });
 (()=>{
     //let promptStr = prompt("Enter address of chat or enter nothing to connect to pi@"+address, "192.168.0.66:8001")
@@ -147,7 +147,8 @@ $(".userList").click(()=>{
     //    address = promptStr;
     //}
     $("#settingsConnect").click( ()=>{
-        $("#settingsBgrDisable").hide();
+        $("#grayedOutBackground").hide();
+        $("#settingsWindow").hide();
         if($("#ipAddress").val() ){
             address = $("#ipAddress").val();
         }else{
